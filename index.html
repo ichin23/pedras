@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Protótipo – Rastreio IG Pedras São Thomé</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f6f7f5;--card:#fff;--ink:#1d2b2e;--muted:#5b6b6e;--line:#d9dedb;--acc:#1f5f6b;--accs:#e0eef0;--ok:#2f6b3f;--oks:#e3f1e6;--warn:#8a5a00;--warns:#fbefd2;--bad:#a3302a;--bads:#fbe3e0;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141b1c;--card:#1c2628;--ink:#e6ecea;--muted:#9aaaad;--line:#2d3a3c;--acc:#6fb7c4;--accs:#213a3f;--ok:#86c995;--oks:#1f3a27;--warn:#e5b95c;--warns:#3d3015;--bad:#f0928b;--bads:#43211f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141b1c;--card:#1c2628;--ink:#e6ecea;--muted:#9aaaad;--line:#2d3a3c;--acc:#6fb7c4;--accs:#213a3f;--ok:#86c995;--oks:#1f3a27;--warn:#e5b95c;--warns:#3d3015;--bad:#f0928b;--bads:#43211f;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:20px;font-weight:500;margin:0}
+h2{font-size:16px;font-weight:500;margin:0 0 12px}
+.top{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 18px}
+.tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:16px}
+.tabs button{flex:1;border:0;background:none;color:var(--muted);font:500 15px "IBM Plex Sans",sans-serif;padding:10px;border-radius:7px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--acc);color:var(--card)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+label{display:block;font-size:14px;color:var(--muted);margin:14px 0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 12px;border-radius:8px;font:400 14px "IBM Plex Sans",sans-serif;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--acc);background:var(--accs);color:var(--acc);font-weight:500}
+select,input[type=text]{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:400 15px "IBM Plex Mono",monospace}
+select{font-family:"IBM Plex Sans",sans-serif}
+.btn{border:0;background:var(--acc);color:var(--card);font:500 15px "IBM Plex Sans",sans-serif;padding:12px 18px;border-radius:8px;cursor:pointer;margin-top:16px}
+.btn.sec{background:none;color:var(--acc);border:1px solid var(--acc)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.msg{margin-top:14px;padding:10px 12px;border-radius:8px;font-size:14px;background:var(--oks);color:var(--ok)}
+.msg.w{background:var(--warns);color:var(--warn)}
+.row{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.row:first-child{border-top:0}
+.code{font-family:"IBM Plex Mono",monospace;font-size:13px}
+.muted{color:var(--muted)}
+.status{border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.status b{display:block;font-size:17px;font-weight:500}
+.s-ok{background:var(--oks);color:var(--ok)}.s-warn{background:var(--warns);color:var(--warn)}.s-bad{background:var(--bads);color:var(--bad)}.s-neu{background:var(--accs);color:var(--acc)}
+.lot{display:flex;gap:16px;align-items:center;margin-bottom:12px}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:flex;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:14px}
+.tl li.gap{color:var(--warn);border-top-style:dashed}
+.dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--acc);margin-top:6px}
+.gap .dot{background:none;border:2px solid var(--warn)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{background:var(--bg);border-radius:8px;padding:10px;text-align:center}
+.stat b{display:block;font:500 22px "IBM Plex Mono",monospace}
+.stat span{font-size:12px;color:var(--muted)}
+.hint{font-size:13px;color:var(--muted);margin-top:8px}
+[hidden]{display:none!important}
+@media(max-width:480px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top">
+<svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><polygon points="4,22 10,8 22,5 30,14 27,27 12,30" fill="#c79a3b"/><polygon points="10,8 22,5 19,15" fill="#e2bd6b"/><polygon points="19,15 30,14 27,27" fill="#a67c22"/></svg>
+<h1>Rastreio Pedra São Thomé</h1>
+</div>
+<p class="sub">Protótipo conectado ao Supabase. Empresas e lotes de demonstração são fictícios.</p>
+<div id="cfg" class="msg w" hidden></div>
+
+<div class="tabs" role="tablist">
+<button role="tab" id="t1" aria-selected="true" onclick="tab(1)">Registro (empresas)</button>
+<button role="tab" id="t2" aria-selected="false" onclick="tab(2)">Consulta (comprador)</button>
+</div>
+
+<section id="v1">
+<div class="card">
+<h2>Registrar movimentação</h2>
+<label>Etapa da sua empresa</label>
+<div class="chips" id="stageChips"></div>
+<label for="act">Ação</label>
+<select id="act" onchange="refresh()"></select>
+<div id="lotBox">
+<label for="lot">Lote</label>
+<select id="lot"></select>
+</div>
+<div id="nBox" hidden>
+<label for="n">Quantidade de sublotes</label>
+<select id="n"><option>2</option><option>3</option><option>4</option></select>
+</div>
+<button class="btn" id="go" onclick="registrar()">Registrar</button>
+<div id="feedback" role="status"></div>
+</div>
+<div class="card">
+<h2>Últimos registros</h2>
+<div id="recent"></div>
+</div>
+</section>
+
+<section id="v2" hidden>
+<div class="card">
+<h2>Consultar a procedência</h2>
+<label for="q">Código gravado na pedra</label>
+<input type="text" id="q" placeholder="SJ-A100-0001" autocomplete="off" spellcheck="false">
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn" onclick="consultar(document.getElementById('q').value)">Consultar</button>
+</div>
+<p class="hint">Simule a leitura do QR Code ou Data Matrix com as pedras de teste:</p>
+<div class="chips">
+<button class="chip" onclick="scan('SJ-A100-0001')">Pedra 1</button>
+<button class="chip" onclick="scan('SJ-A100-0002')">Pedra 2</button>
+<button class="chip" onclick="scan('SJ-A100-9999')">Pedra 3</button>
+</div>
+</div>
+<div id="result"></div>
+</section>
+
+<div class="card">
+<h2>Contadores da simulação</h2>
+<div class="stats">
+<div class="stat"><b id="c1">0</b><span>registros feitos</span></div>
+<div class="stat"><b id="c2">0</b><span>consultas</span></div>
+<div class="stat"><b id="c3">0</b><span>lacunas detectadas</span></div>
+<div class="stat"><b id="c4">0</b><span>alertas enviados</span></div>
+</div>
+<button class="btn sec" onclick="reset()">Reiniciar simulação</button>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+var STAGES=['Mineradora','Beneficiamento','Distribuição','Loja'];
+var WHO=['Mineradora A','Beneficiamento B','Distribuidora C','Loja D'];
+var ACTS=[['Extrair e identificar lote'],['Receber lote','Dividir em sublotes'],['Receber lote','Enviar lote'],['Receber lote','Vender lote']];
+var sb,stage=0,lastCode='';
+function el(i){return document.getElementById(i)}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function fmt(t){t=new Date(t);return t.toLocaleDateString('pt-BR')+' '+t.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}
+function chk(r){if(r.error)throw r.error}
+function fail(e){el('feedback').innerHTML='<div class="msg w">Erro ao falar com o Supabase: '+esc(e.message||e)+'</div>'}
+function tab(n){el('v1').hidden=n!==1;el('v2').hidden=n!==2;el('t1').setAttribute('aria-selected',n===1);el('t2').setAttribute('aria-selected',n===2)}
+function chips(){
+el('stageChips').innerHTML=STAGES.map(function(s,i){return '<button class="chip" aria-pressed="'+(i===stage)+'" onclick="setStage('+i+')">'+s+'</button>'}).join('');
+el('act').innerHTML=ACTS[stage].map(function(a){return '<option>'+a+'</option>'}).join('');
+refresh();
+}
+function setStage(i){stage=i;el('feedback').innerHTML='';chips()}
+function maxStage(list){return Math.max.apply(null,list.map(function(e){return e.stage}).concat([0]))}
+async function refresh(){
+el('lotBox').hidden=stage===0;
+el('nBox').hidden=el('act').value!=='Dividir em sublotes';
+if(!sb)return;
+try{
+var r=await sb.from('lots').select('code,events(stage)').order('created_at',{ascending:false}).limit(100);chk(r);
+el('lot').innerHTML=r.data.map(function(l){return '<option value="'+esc(l.code)+'">'+esc(l.code)+' (última etapa: '+STAGES[maxStage(l.events)]+')</option>'}).join('');
+await renderRecent();await stats();
+}catch(e){fail(e)}
+}
+async function renderRecent(){
+var r=await sb.from('events').select('lot_code,stage,action,created_at').order('created_at',{ascending:false}).limit(5);chk(r);
+el('recent').innerHTML=r.data.map(function(x){return '<div class="row"><span class="code">'+esc(x.lot_code)+'</span><span>'+STAGES[x.stage]+': '+esc(x.action)+'<br><span class="muted">'+fmt(x.created_at)+'</span></span></div>'}).join('');
+}
+async function count(t,f){var q=sb.from(t).select('*',{count:'exact',head:true});if(f)q=f(q);var r=await q;chk(r);return r.count||0}
+async function stats(){
+var v=await Promise.all([
+count('events',function(q){return q.eq('seed',false)}),
+count('lookups'),
+count('lookups',function(q){return q.eq('resultado','lacuna')}),
+count('alerts')]);
+el('c1').textContent=v[0];el('c2').textContent=v[1];el('c3').textContent=v[2];el('c4').textContent=v[3];
+}
+async function registrar(){
+if(!sb)return;
+var a=el('act').value,msg,warn=false,btn=el('go'),code;
+btn.disabled=true;
+try{
+if(stage===0){
+var p=await sb.rpc('proximo_codigo');chk(p);code=p.data;
+chk(await sb.from('lots').insert({code:code}));
+chk(await sb.from('events').insert({lot_code:code,stage:0,action:'Extração e identificação',actor:WHO[0]}));
+msg='Lote '+code+' criado. Grave o código na pedra e cole a etiqueta no lote.';
+}else{
+code=el('lot').value;if(!code)return;
+var r=await sb.from('events').select('stage').eq('lot_code',code);chk(r);
+var gap=stage-maxStage(r.data)>1;
+if(a==='Dividir em sublotes'){
+var n=+el('n').value,subs=[],evs=[];
+chk(await sb.from('events').insert({lot_code:code,stage:stage,action:'Dividido em '+n+' sublotes',actor:WHO[stage],gap:gap}));
+for(var i=1;i<=n;i++){subs.push({code:code+'.'+i,parent_code:code});evs.push({lot_code:code+'.'+i,stage:stage,action:'Sublote gerado de '+code,actor:WHO[stage]})}
+chk(await sb.from('lots').insert(subs));chk(await sb.from('events').insert(evs));
+msg='Lote dividido. Foram gerados '+n+' sublotes ligados a '+code+'.';
+}else{
+var ac=a==='Receber lote'?'Lote recebido':a==='Enviar lote'?'Lote enviado':'Lote vendido';
+chk(await sb.from('events').insert({lot_code:code,stage:stage,action:ac,actor:WHO[stage],gap:gap}));
+msg=ac+' registrado para '+code+'.';
+}
+if(gap){warn=true;msg+=' Atenção: falta registro de etapa anterior.'}
+}
+el('feedback').innerHTML='<div class="msg'+(warn?' w':'')+'">'+esc(msg)+'</div>';
+await refresh();
+}catch(e){fail(e)}finally{btn.disabled=false}
+}
+function matrix(code){
+var h=0,i,j,s='',N=11,c=6;
+for(i=0;i<code.length;i++)h=(h*31+code.charCodeAt(i))>>>0;
+for(i=0;i<N;i++)for(j=0;j<N;j++){
+var on;
+if(j===0||i===N-1)on=true;
+else if(i===0)on=j%2===0;
+else if(j===N-1)on=i%2===1;
+else{h=(h*1103515245+12345)>>>0;on=(h>>>16)%2===1}
+if(on)s+='<rect x="'+(j*c+4)+'" y="'+(i*c+4)+'" width="'+c+'" height="'+c+'"/>'
+}
+return '<svg width="78" height="78" viewBox="0 0 '+(N*c+8)+' '+(N*c+8)+'" fill="currentColor" role="img" aria-label="Código de exemplo">'+s+'</svg>';
+}
+function scan(c){el('q').value=c;consultar(c)}
+async function consultar(raw){
+var code=(raw||'').trim().toUpperCase(),out=el('result');lastCode=code;
+if(!code){out.innerHTML='<div class="status s-neu"><b>Digite ou leia um código</b>Use as pedras de teste acima para simular a leitura.</div>';return}
+if(!sb)return;
+try{
+var r=await sb.from('lots').select('code,parent_code').eq('code',code).maybeSingle();chk(r);
+if(!r.data){
+await sb.from('lookups').insert({code:code,resultado:'inexistente'});
+out.innerHTML='<div class="card"><div class="status s-bad"><b>Código não encontrado</b>Este código não consta nos registros da IG. A pedra pode não ser original ou o código pode ter sido copiado.</div><p class="code">'+esc(code)+'</p><p class="muted" style="font-size:14px">Peça à loja a documentação do lote antes de comprar.</p><button class="btn" onclick="alertar()">Enviar alerta à AMIST</button><div id="al"></div></div>';
+await stats();return;
+}
+var chain=[code],cur=r.data.parent_code;
+for(var k=0;k<4&&cur;k++){chain.push(cur);var p=await sb.from('lots').select('parent_code').eq('code',cur).maybeSingle();chk(p);cur=p.data?p.data.parent_code:null}
+var ev=await sb.from('events').select('stage,action,actor,created_at').in('lot_code',chain).order('created_at');chk(ev);
+var have={},max=0,m=[];
+ev.data.forEach(function(x){have[x.stage]=1;if(x.stage>max)max=x.stage});
+for(var i=0;i<=max;i++)if(!have[i])m.push(STAGES[i]);
+var cls,title,txt,res;
+if(m.length){cls='s-warn';title='Procedência registrada, com lacuna';txt='Sem registro em: '+m.join(', ')+'. Peça esclarecimento ao vendedor.';res='lacuna'}
+else if(max<3){cls='s-neu';title='Lote em trânsito';txt='Ainda não há registro de chegada à loja.';res='transito'}
+else{cls='s-ok';title='Origem confirmada';txt='Todas as etapas do lote têm registro.';res='confirmada'}
+await sb.from('lookups').insert({code:code,resultado:res});
+var items=ev.data.map(function(x){return '<li><span class="dot"></span><span><b style="font-weight:500">'+STAGES[x.stage]+'</b>: '+esc(x.action)+'<br><span class="muted">'+esc(x.actor||'')+' · '+fmt(x.created_at)+'</span></span></li>'}).join('');
+if(m.length)items+='<li class="gap"><span class="dot"></span><span>Sem registro: '+m.join(', ')+'</span></li>';
+out.innerHTML='<div class="card"><div class="status '+cls+'"><b>'+title+'</b>'+txt+'</div><div class="lot">'+matrix(code)+'<div><div class="code">'+esc(code)+'</div><div class="muted" style="font-size:14px">Quartzito · IG Região Pedras São Thomé</div></div></div><ul class="tl">'+items+'</ul></div>';
+await stats();
+}catch(e){out.innerHTML='<div class="msg w">Erro ao consultar: '+esc(e.message||e)+'</div>'}
+}
+async function alertar(){
+try{chk(await sb.from('alerts').insert({code:lastCode}));el('al').innerHTML='<div class="msg">Alerta enviado à AMIST com o código '+esc(lastCode)+'.</div>';await stats()}catch(e){el('al').innerHTML='<div class="msg w">'+esc(e.message||e)+'</div>'}
+}
+async function reset(){
+if(!sb)return;
+try{chk(await sb.rpc('reiniciar_simulacao'));el('result').innerHTML='';el('feedback').innerHTML='';el('q').value='';await refresh()}catch(e){fail(e)}
+}
+(function(){
+var u=window.SUPABASE_URL,k=window.SUPABASE_ANON_KEY;
+if(!u||!k||u.indexOf('SEU-PROJETO')>-1||!window.supabase){el('cfg').hidden=false;el('cfg').textContent='Configure SUPABASE_URL e SUPABASE_ANON_KEY em config.js.';chips();return}
+sb=window.supabase.createClient(u,k);chips();
+})();
+</script>
+</body>
+</html>
